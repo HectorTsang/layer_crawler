@@ -81,6 +81,6 @@ layer_crawler 提供引擎的基础套件，对于 采集活动结束后的操�
 如何选择启动哪个业务引擎？建议的方式为：根据配置信息，先枚举出管理的所有的采集业务，再手动选择启动的业务引擎。
 
 ### 使用指南
-示例见本目录 config.xml 配置文件, crawler.py 程序入口, spider 解析器, item_pipeline.py 之item\itemPipelineDirector
+示例见本目录 [config.xml 配置文件](https://github.com/HectorTsang/layer_crawler/blob/master/config.xml), [crawler.py 程序入口](https://github.com/HectorTsang/layer_crawler/blob/master/crawler.py), [spider 解析器](https://github.com/HectorTsang/layer_crawler/blob/master/spider.py), [item_pipeline.py](https://github.com/HectorTsang/layer_crawler/blob/master/item_pipeline.py) 之item\itemPipelineDirector
 
 
