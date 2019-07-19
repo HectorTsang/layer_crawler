@@ -1,0 +1,78 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<config>
+    <activity>
+        <interval unit='minute'>30</interval>
+    </activity>
+
+    <work>
+        <concurrency>50</concurrency>
+    </work>
+
+    <scheduler>
+        <category>
+            <name>macro_statistics</name>
+            <depth>2</depth>
+            <layer_deep_map>    <!-- {业务层级A：采集深度0, 业务层级B：采集深度1, 业务层级C：采集深度2,...}，将采集深度与业务层级解耦 -->
+                <m><layer>0</layer><deep>0</deep></m>
+                <m><layer>1</layer><deep>1</deep></m>
+            </layer_deep_map>
+            <req_1st>(0, 'GET', 'http://zjj.sz.gov.cn/ris/szfdc/showcjgs/ysfcjgs.aspx?cjType=0', None, None)</req_1st>
+            <snapshot_unvisited_reqs_filename>snapshot\macro\UnvisitedReqs.xml</snapshot_unvisited_reqs_filename>
+            <snapshot_visiting_reqs_filename>snapshot\macro\VisitingReqs.xml</snapshot_visiting_reqs_filename>
+        </category>
+
+        <category>
+            <name>project</name>
+            <depth>4</depth>
+            <layer_deep_map>
+                <m><layer>0</layer><deep>0</deep></m>
+                <m><layer>1</layer><deep>1</deep></m>
+                <m><layer>2</layer><deep>2</deep></m>
+                <m><layer>3</layer><deep>3</deep></m>
+            </layer_deep_map>
+            <req_1st>(0, 'GET', 'http://zjj.sz.gov.cn/ris/bol/szfdc/index.aspx', None, None)</req_1st>
+            <snapshot_unvisited_reqs_filename>snapshot\UnvisitedReqs.xml</snapshot_unvisited_reqs_filename>
+            <snapshot_visiting_reqs_filename>snapshot\VisitingReqs.xml</snapshot_visiting_reqs_filename>
+        </category>
+
+        <category>
+            <name>roomattri</name>
+            <depth>1</depth>
+            <layer_deep_map>
+                <m><layer>4</layer><deep>0</deep></m>
+            </layer_deep_map>
+            <req_1st></req_1st>
+            <snapshot_unvisited_reqs_filename>snapshot\roomattri\UnvisitedReqs.xml</snapshot_unvisited_reqs_filename>
+            <snapshot_visiting_reqs_filename>snapshot\roomattri\VisitingReqs.xml</snapshot_visiting_reqs_filename>
+        </category>
+    </scheduler>
+
+    <downloader>
+        <client_sesseion_count>50</client_sesseion_count>
+        <proxy>
+            <used>1</used>    <!-- 1 表示使用代理ip，0 表示不使用代理ip-->
+            <key>http://proxysteward.sinaapp.com/api/get?key=64E49892-6972-041D-B764-3A09AF8A20D9</key>
+            <times_size>100</times_size>
+        </proxy>
+    </downloader>
+
+    <pipeline>
+        <db type='mysql'>
+            <dbkey used='yes'>
+                <host>182.151.214.124</host>
+                <port>9306</port>
+                <user>zengh</user>
+                <password>rlinfo#2017</password>
+                <database>RAPDB_SZ_TM</database>
+            </dbkey>
+
+            <dbkey used="">
+                <host>localhost</host>
+                <port>3306</port>
+                <user>root</user>
+                <password>mysqlpass</password>
+                <database>RAPDB_SZ_TM</database>
+            </dbkey>
+        </db>
+    </pipeline>
+</config>
