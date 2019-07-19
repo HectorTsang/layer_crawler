@@ -219,7 +219,7 @@ def main():
     total_work_category = el_config.xpath('/config/scheduler/category/name/text()')
     print('<! 本次并发量为：%s>' % COROUTINE_COUNT)
     print('<! 每次采集活动间隔：%s s>' % ACTIVITY_INTERVAL)
-    print('本采集为 %s ，请选择要进行的采集作业类别：' % ('深圳市房地产信息系统'))
+    print('本采集为 %s ，请选择要进行的采集作业类别：' % ('XXXXXXXXXXXXXXXXX'))
     id_work_ref = dict(zip(range(len(total_work_category)), total_work_category))
     for item in id_work_ref.items():
         print('%s: %s' % (item[0], item[1]))
