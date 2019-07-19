@@ -33,7 +33,7 @@ layer_crawler 的层级结构通过两方面实现，其一为 req 的分层存�
 
 ![image](https://github.com/HectorTsang/layer_crawler/blob/master/image/scheduler.png)
 
-scheduler 维系着两组分层集合，分别为待采集 req 集合（unvisited_reqs），用 FIFO 队列实现；正在采集的 req 集合（visiting_reqs），用 set 实现。待采集集合、正在采集集合，各深度层严格对应。
+scheduler 维系着两组分层集合，分别为待采集 req 集合（unvisited_reqs），各层均用 FIFO 队列实现；正在采集的 req 集合（visiting_reqs），各层均用 set 实现。待采集集合、正在采集集合，各深度层严格对应。
 
 引擎从 scheduler 中取待采集 req 时，按照深度优先的策略取，优先从最深的 unvisited_reqs 中的队列中获取，逐级向上，如果依次都没有获取到 req，不等待。当从某个深度层获取到一个 req 时，req 从队列中出来，存储到对应深度的正在采集集合，这可以理解为在 visiting_reqs 中打标记的过程。随着采集作业协程的执行，如果顺利完成，则从 visiting_reqs 中擦除该标记，至此，该 req 不再存储到 scheduler 中。如果中间发生异常，则先将该 req 重新放入 unvisited_reqs 中，也要从 visiting_reqs 中擦除该标记。
 
@@ -63,7 +63,9 @@ item 是数据库存储表的表名及字段映射。layer_crawler 提供的 pip
 ![image](https://github.com/HectorTsang/layer_crawler/blob/master/image/engine.png)
 
 引擎开启后，驱动一个**采集活动**循环，-- 采集活动 -- 活动结束后的操作 -- 活动间隔 -- 采集活动 --。
+
 对于每次采集活动，分为活动中，活动收尾清场（释放 downloader 的 clientsession 资源，pipeline 的 connection 资源）。一次活动就是从第一页直到最后一页的采集全过程。
+
 采集活动中，首先需要为 downloader 初始化 clientsession 池; 为 pipeline 初始化 connection; 为 scheduler 初始化 unvisited_reqs, 从第一页开始采集，还是由上次活动暂停时保存的 req 快照初始化。其次，需要根据执行需求选择是否在数据库中新建采集表。之后引擎就是从 scheduler 中获取 req，创建采集作业协程，并将此协程交给 asyncio 排期，开始异步并发采集。直到 scheduler 中 unvisited_reqs/visiting_reqs 都为空时，本此采集活动正常结束。
 
 layer_crawler 提供引擎的基础套件，对于 采集活动结束后的操作、采集作业协程函数、新建采集表操作，这三个方法需要针对具体采集任务具体实现。所以需要继承基础引擎，并实现上述三个方法。
