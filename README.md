@@ -4,7 +4,7 @@ layer_crawler，集中管理网站采集多任务，并对每个任务以层级�
 ### 设计背景
 一个网站的页面结构，实际上是树结构。但也不是严格意义上的树结构，因为拿翻页来说，虽然下一页的父节点是上一页，但是翻页上下页是一个层级。同理，同一层级下打开的子页面也属于同一层级，如下图。
 
-![image](https://github.com/HectorTsang/hello-world/blob/master/image/web_pages_structure.png)
+![image](https://github.com/HectorTsang/layer_crawler/blob/master/image/web_pages_structure.png)
 
 同时网页的树结构一个父节点往往关联较多的子节点，尤其底部叶子节点数量庞大，远没有二叉树等平衡。所以网页爬虫的请求 request 直接按**层级结构**管理。再者，要爬取一个网站，有时需要爬取其几个模块，那么**采集任务的集中管理**也值得研究。基于以上两点，设计出层级结构采集框架**layer_crawler**。
 
@@ -14,7 +14,7 @@ layer_crawler，集中管理网站采集多任务，并对每个任务以层级�
 #### 单个 request 的采集作业过程
 通过学习 Scrapy，layer_crawler 也采用 Scheduler, Downloader, Spider, Item_Pipeline, Engine 六部分实现，不过功能上和 Scrapy 差异很大。下面一一说明。
 
-![image](https://github.com/HectorTsang/hello-world/blob/master/image/module_structure.png)
+![image](https://github.com/HectorTsang/layer_crawler/blob/master/image/module_structure.png)
 
 上图为一个采集作业协程执行过程：
 * ①引擎从 scheduler 中取出一个待采集 req
@@ -31,13 +31,13 @@ layer_crawler，集中管理网站采集多任务，并对每个任务以层级�
 ##### scheduler 层级结构 req 调度器
 layer_crawler 的层级结构通过两方面实现，其一为 req 的分层存储结构 scheduler，其二为 req 格式本身
 
-![image](https://github.com/HectorTsang/hello-world/blob/master/image/scheduler.png)
+![image](https://github.com/HectorTsang/layer_crawler/blob/master/image/scheduler.png)
 
 scheduler 维系着两组分层集合，分别为待采集 req 集合（unvisited_reqs），用 FIFO 队列实现；正在采集的 req 集合（visiting_reqs），用 set 实现。待采集集合、正在采集集合，各深度层严格对应。
 
 引擎从 scheduler 中取待采集 req 时，按照深度优先的策略取，优先从最深的 unvisited_reqs 中的队列中获取，逐级向上，如果依次都没有获取到 req，不等待。当从某个深度层获取到一个 req 时，req 从队列中出来，存储到对应深度的正在采集集合，这可以理解为在 visiting_reqs 中打标记的过程。随着采集作业协程的执行，如果顺利完成，则从 visiting_reqs 中擦除该标记，至此，该 req 不再存储到 scheduler 中。如果中间发生异常，则先将该 req 重新放入 unvisited_reqs 中，也要从 visiting_reqs 中擦除该标记。
 
-![image](https://github.com/HectorTsang/hello-world/blob/master/image/deep_layer_reference.png)
+![image](https://github.com/HectorTsang/layer_crawler/blob/master/image/deep_layer_reference.png)
 
 如图所示，req 的格式采用元组表示
 * layer 表示该 req 在一个采集任务中的网页层级
@@ -60,7 +60,7 @@ item 是数据库存储表的表名及字段映射。layer_crawler 提供的 pip
 #### 引擎驱动
 上述单个采集作业的过程可见，需要一个引擎来驱动并发作业。下图所示为 layer_crawler 引擎的实现思路
 
-![image](https://github.com/HectorTsang/hello-world/blob/master/image/engine.png)
+![image](https://github.com/HectorTsang/layer_crawler/blob/master/image/engine.png)
 
 引擎开启后，驱动一个**采集活动**循环，-- 采集活动 -- 活动结束后的操作 -- 活动间隔 -- 采集活动 --。
 对于每次采集活动，分为活动中，活动收尾清场（释放 downloader 的 clientsession 资源，pipeline 的 connection 资源）。一次活动就是从第一页直到最后一页的采集全过程。
